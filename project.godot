@@ -10,14 +10,22 @@ config_version=5
 
 [application]
 
-config/name="Penguin Crossy"
+config/name="Penguin Crossy 2"
 run/main_scene="uid://dhxo55h6d3xbw"
 config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://icon.svg"
 
+[autoload]
+
+Database="*uid://h1auoipig5do"
+ApiManager="*uid://bhed6et1s3t7t"
+MCPScreenshot="*res://addons/godot_mcp/mcp_screenshot_service.gd"
+MCPInputService="*res://addons/godot_mcp/mcp_input_service.gd"
+MCPGameInspector="*res://addons/godot_mcp/mcp_game_inspector_service.gd"
+
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/godot_mcp/plugin.cfg")
+enabled=PackedStringArray("res://addons/godot-sqlite/plugin.cfg", "res://addons/godot_mcp/plugin.cfg")
 
 [physics]
 

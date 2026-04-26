@@ -1,11 +1,11 @@
 extends CharacterBody3D
 
 # Velocidad del NPC
-@export var speed: float = 3.0
+@export var speed: float = 50.0
 
 # Puntos A y B para el movimiento lineal
-@export var point_a: Vector3 = Vector3(-5, 0, 0)
-@export var point_b: Vector3 = Vector3(5, 0, 0)
+@export var point_a: Vector3 = Vector3(-1, 0, 0)
+@export var point_b: Vector3 = Vector3(1, 0, 0)
 
 var moving_to_b: bool = true
 const GRAVITY = -9.8
