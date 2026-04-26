@@ -1,32 +1,36 @@
 extends CharacterBody3D
 
+# ── Señales ────────────────────────────────────────────────────
+signal collectible_picked
+signal score_updated(new_score: int)
+signal game_over_triggered(reason: String)
+
 # ── Configuración ──────────────────────────────────────────────
 const SPEED     = 5.0
 const GRAVITY   = -9.8
 const ROT_SPEED = 10.0
 
 # ── Referencias ────────────────────────────────────────────────
-@onready var model: Node3D           = $penguin
+@onready var model:    Node3D        = $penguin
 @onready var camera_arm: SpringArm3D = $CameraArm
 @onready var hit_area: Area3D        = $HitArea
 
 var hud = null
 var start_position: Vector3
 var attempts: int = 0
+var score:    int = 0
 
-# Cooldown para evitar múltiples hits seguidos
 var hit_cooldown: float = 0.0
 const HIT_COOLDOWN_TIME = 1.0
+var _dead: bool = false  # Evitar múltiples game_over
 
 func _ready():
 	start_position = global_position
 	add_to_group("player")
 	hud = get_tree().get_root().find_child("HUD", true, false)
-	# Conectar la señal del Area3D
 	hit_area.body_entered.connect(_on_hit_area_body_entered)
 
 func _physics_process(delta):
-	# Reducir cooldown
 	if hit_cooldown > 0:
 		hit_cooldown -= delta
 
@@ -49,19 +53,32 @@ func _physics_process(delta):
 
 	move_and_slide()
 
-# ── Detección omnidireccional via Area3D ───────────────────────
+# ── Colisión con NPC ───────────────────────────────────────────
 func _on_hit_area_body_entered(body: Node3D):
-	if hit_cooldown > 0:
+	if hit_cooldown > 0 or _dead:
 		return
 	if body.is_in_group("npc"):
 		hit_by_npc()
 
 func hit_by_npc():
-	if hit_cooldown > 0:
+	if hit_cooldown > 0 or _dead:
 		return
 	hit_cooldown = HIT_COOLDOWN_TIME
 	attempts += 1
 	if hud:
 		hud.show_hit_message(attempts)
+	if attempts == 3:
+		_dead = true
+		emit_signal("game_over_triggered", "lose") # Emitimos la señal de fin
+	# Volver al inicio
 	global_position = start_position
 	velocity = Vector3.ZERO
+
+# ── Recoger coleccionable ──────────────────────────────────────
+func add_score():
+	score += 1
+	emit_signal("collectible_picked")
+	emit_signal("score_updated", score)
+	if hud:
+		hud.update_score(score)
+	ApiManager.fetch_advice()
